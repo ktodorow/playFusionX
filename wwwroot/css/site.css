@@ -1,22 +1,68 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* General Light Theme */
 body {
-  margin-bottom: 60px;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.navbar {
+  background-color: #ffffff;
+  color: #333;
+}
+
+.navbar .nav-link {
+  color: #333;
+}
+
+.logo-img {
+    height: 20px;       
+    max-height: 100%;
+    margin-top: -5px;
+}
+
+.media-player-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #ddd;
+  color: #333;
+  padding: 10px;
+  z-index: 10;
+}
+
+.media-info {
+  display: flex;
+  align-items: center;
+}
+
+.album-art {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.song-title, .artist-name {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.playback-controls {
+  display: flex;
+  gap: 15px;
+}
+
+.playback-controls .btn-link {
+  color: rgb(0, 94, 255);
+  font-size: 1.5rem;
+}
+
+.extra-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.volume-slider {
+  width: 100px;
 }

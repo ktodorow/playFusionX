@@ -1,4 +1,13 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener("DOMContentLoaded", () => {
+    const playButton = document.querySelector(".playback-controls .fa-play");
+    let isPlaying = false;
 
-// Write your JavaScript code.
+    playButton.addEventListener("click", () => {
+        if (isPlaying) {
+            playButton.classList.replace("fa-pause", "fa-play");
+        } else {
+            playButton.classList.replace("fa-play", "fa-pause");
+        }
+        isPlaying = !isPlaying;
+    });
+});

@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var hideFooter = ViewData["HideFooter"] as bool? ?? false;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -6,13 +10,15 @@
     <title>@ViewData["Title"] - playFusionX</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/playFusionX.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-light bg-light border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">playFusionX</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/playXlogo.png" alt="playFusionX" class="logo-img">
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -23,7 +29,10 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Playlist" asp-action="Index">Playlists</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Explore">Explore</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -31,17 +40,43 @@
             </div>
         </nav>
     </header>
+    
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3 text-center">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - playFusionX - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @* Conditionally render the footer *@
+    @if (!hideFooter)
+    {
+        <footer class="media-player-footer">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <!-- Song Info -->
+                <div class="media-info">
+                    <img src="https://via.placeholder.com/50" alt="Album Art" class="album-art">
+                    <div>
+                        <p class="song-title mb-0">Song Title</p>
+                        <p class="artist-name mb-0">Artist Name</p>
+                    </div>
+                </div>
+
+                <!-- Playback Controls -->
+                <div class="playback-controls">
+                    <button class="btn btn-link"><i class="fas fa-step-backward"></i></button>
+                    <button class="btn btn-link"><i class="fas fa-play"></i></button>
+                    <button class="btn btn-link"><i class="fas fa-step-forward"></i></button>
+                </div>
+
+                <!-- Volume and Other Controls -->
+                <div class="extra-controls d-flex align-items-center">
+                    <button class="btn btn-link"><i class="fas fa-volume-up"></i></button>
+                    <input type="range" min="0" max="100" value="50" class="volume-slider">
+                </div>
+            </div>
+        </footer>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
