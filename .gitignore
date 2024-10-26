@@ -15,6 +15,7 @@ appsettings.json
 appsettings.Development.json
 bin
 obj
+obj\Debug\net8.0
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)
