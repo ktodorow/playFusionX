@@ -13,8 +13,8 @@
 *.yml
 appsettings.json
 appsettings.Development.json
-obj
 bin
+obj
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)
