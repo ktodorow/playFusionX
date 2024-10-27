@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using playFusionX.Data.Models;
 
 namespace playFusionX.Data
 {
@@ -9,5 +10,7 @@ namespace playFusionX.Data
             : base(options)
         {
         }
+
+        public virtual DbSet<SpotifyToken> SpotifyTokens { get; set; }
     }
 }

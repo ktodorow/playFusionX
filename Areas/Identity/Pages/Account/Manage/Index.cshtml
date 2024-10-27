@@ -25,6 +25,27 @@
     </div>
 </div>
 
+<div class="card">
+    <div class="card-body">
+        <h2>External Connections</h2>
+        @if (User.Identity.IsAuthenticated)
+        {
+            @if (Model.IsSpotifyConnected)
+            {
+                <p>Spotify is connected.</p>
+            }
+            else
+            {
+                <a asp-controller="Spotify" asp-action="Connect" class="btn btn-primary">Connect to Spotify</a>
+            }
+        }
+        else
+        {
+            <p>Please log in to connect to Spotify.</p>
+        }
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using playFusionX.Data;
 
 namespace playFusionX.Areas.Identity.Pages.Account.Manage
 {
@@ -16,13 +19,16 @@ namespace playFusionX.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ApplicationDbContext _dbContext;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -60,6 +66,8 @@ namespace playFusionX.Areas.Identity.Pages.Account.Manage
             public string PhoneNumber { get; set; }
         }
 
+        public bool IsSpotifyConnected { get; set; }
+
         private async Task LoadAsync(IdentityUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
@@ -71,6 +79,10 @@ namespace playFusionX.Areas.Identity.Pages.Account.Manage
             {
                 PhoneNumber = phoneNumber
             };
+
+            var userId = user.Id;
+            var spotifyToken = await _dbContext.SpotifyTokens.FirstOrDefaultAsync(t => t.UserId == userId);
+            IsSpotifyConnected = spotifyToken != null;
         }
 
         public async Task<IActionResult> OnGetAsync()
