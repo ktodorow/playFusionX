@@ -43,6 +43,17 @@
         {
             <p>Please log in to connect to Spotify.</p>
         }
+
+        @if (Model.IsSpotifyConnected)
+        {
+            <a asp-controller="Spotify" asp-action="Logout" class="btn btn-danger">Disconnect from Spotify</a>
+        }   
+
+        <form method="post" asp-page-handler="CheckSpotifyStatus">
+            <button type="submit" class="btn btn-primary">Check Spotify Status</button>
+        </form>
+
+        
     </div>
 </div>
 

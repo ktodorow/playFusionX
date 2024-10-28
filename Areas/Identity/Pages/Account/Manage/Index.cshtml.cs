@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
 using playFusionX.Data;
 
 namespace playFusionX.Areas.Identity.Pages.Account.Manage
@@ -20,15 +23,18 @@ namespace playFusionX.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDbContext _dbContext;
+        private readonly IConfiguration _config;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            ApplicationDbContext dbContext)
+            ApplicationDbContext dbContext,
+            IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _dbContext = dbContext;
+            _config = config;
         }
 
         /// <summary>
@@ -67,6 +73,7 @@ namespace playFusionX.Areas.Identity.Pages.Account.Manage
         }
 
         public bool IsSpotifyConnected { get; set; }
+        public string SpotifySubscriptionStatus { get; set; }
 
         private async Task LoadAsync(IdentityUser user)
         {
@@ -124,6 +131,41 @@ namespace playFusionX.Areas.Identity.Pages.Account.Manage
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostCheckSpotifyStatusAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var userId = user.Id;
+            var spotifyToken = await _dbContext.SpotifyTokens.FirstOrDefaultAsync(t => t.UserId == userId);
+            if (spotifyToken == null)
+            {
+                StatusMessage = "Spotify is not connected.";
+                return RedirectToPage();
+            }
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", spotifyToken.AccessToken);
+            var response = await client.GetAsync("https://api.spotify.com/v1/me");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                dynamic profile = JsonConvert.DeserializeObject(content);
+                SpotifySubscriptionStatus = profile.product.ToString();
+                StatusMessage = $"Spotify Subscription Status: {SpotifySubscriptionStatus}";
+            }
+            else
+            {
+                StatusMessage = "Unable to retrieve Spotify subscription status.";
+            }
+
             return RedirectToPage();
         }
     }

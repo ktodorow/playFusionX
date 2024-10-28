@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using playFusionX.Data.Models;
 using playFusionX.Data;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 
 namespace playFusionX.Controllers
 {
@@ -21,8 +23,17 @@ namespace playFusionX.Controllers
             _dbContext = dbContext;
         }
 
-        public IActionResult Connect()
+        public async Task<IActionResult> Connect()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var spotifyToken = await _dbContext.SpotifyTokens.FirstOrDefaultAsync(t => t.UserId == userId);
+
+            if (spotifyToken != null)
+            {
+                // User is already authorized, redirect them to profile page
+                return RedirectToPage("/Account/Manage/Index", new { area = "Identity" });
+            }
+
             var clientId = _config["Spotify:ClientId"];
             var redirectUri = _config["Spotify:RedirectUri"];
             var scope = "user-read-private user-library-read playlist-modify-public";
@@ -74,5 +85,80 @@ namespace playFusionX.Controllers
 
             return BadRequest("Error during Spotify authentication");
         }
+
+        public async Task<string> RefreshAccessToken(string refreshToken)
+        {
+            using var client = new HttpClient();
+            var requestBody = new Dictionary<string, string>
+            {
+                { "grant_type", "refresh_token" },
+                { "refresh_token", refreshToken },
+                { "client_id", _config["Spotify:ClientId"] },
+                { "client_secret", _config["Spotify:ClientSecret"] }
+            };
+
+            var content = new FormUrlEncodedContent(requestBody);
+            var response = await client.PostAsync("https://accounts.spotify.com/api/token", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                dynamic tokenResponse = JsonConvert.DeserializeObject(responseContent);
+                return tokenResponse.access_token;
+            }
+
+            return null;
+        }
+        public async Task<IActionResult> Logout()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var spotifyToken = await _dbContext.SpotifyTokens.FirstOrDefaultAsync(t => t.UserId == userId);
+
+            if (spotifyToken != null)
+            {
+                _dbContext.SpotifyTokens.Remove(spotifyToken);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            return RedirectToPage("/Account/Manage/Index", new { area = "Identity" });
+        }
+
+        // public async Task<IActionResult> CheckPremiumStatus()
+        // {
+        //     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //     var spotifyToken = await _dbContext.SpotifyTokens.FirstOrDefaultAsync(t => t.UserId == userId);
+
+        //     if (DateTime.UtcNow > spotifyToken.TokenExpiry)
+        //     {
+        //         // Refresh the access token
+        //         var newAccessToken = await RefreshAccessToken(spotifyToken.RefreshToken);
+        //         if (!string.IsNullOrEmpty(newAccessToken))
+        //         {
+        //             spotifyToken.AccessToken = newAccessToken;
+        //             spotifyToken.TokenExpiry = DateTime.UtcNow.AddSeconds(3600); // Set expiry for one hour
+        //             await _dbContext.SaveChangesAsync();
+        //         }
+        //     }
+
+        //     using var client = new HttpClient();
+        //     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", spotifyToken.AccessToken);
+        //     var response = await client.GetAsync("https://api.spotify.com/v1/me");
+
+        //     if (response.IsSuccessStatusCode)
+        //     {
+        //         var content = await response.Content.ReadAsStringAsync();
+        //         dynamic profile = JsonConvert.DeserializeObject(content);
+        //         string product = profile.product.ToString().ToLower();
+
+        //         bool isPremium = product == "premium" || product == "duo" || product == "family";
+        //         ViewData["IsSpotifyPremium"] = isPremium;
+        //     }
+        //     else
+        //     {
+        //         ViewData["IsSpotifyPremium"] = false;
+        //     }
+
+        //     return RedirectToPage("/Account/Manage/Index", new { area = "Identity" });
+        // }
     }
 }

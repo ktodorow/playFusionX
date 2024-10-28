@@ -12,5 +12,8 @@ namespace playFusionX.Data
         }
 
         public virtual DbSet<SpotifyToken> SpotifyTokens { get; set; }
+        public virtual DbSet<UnifiedPlaylist> UnifiedPlaylists { get; set; }
+        public virtual DbSet<UnifiedTrack>  UnifiedTracks { get; set; }
+
     }
 }
